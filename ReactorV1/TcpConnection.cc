@@ -1,9 +1,9 @@
 #include "TcpConnection.hh"
 #include "InetAddress.hh"
-#include <func.h>
+#include <cstring>
 #include <iostream>
-#include <netinet/in.h>
 #include <sstream>
+#include <sys/socket.h>
 #include <unistd.h>
 using std::cout;
 using std::endl;
@@ -11,20 +11,36 @@ using std::endl;
 namespace ReactorV1{
 
 TcpConnection::TcpConnection(int fd)
-:_sockio(fd)
-,_sock()
+:_sock(fd)
+,_sockio(fd)
 ,_localAddr(getLocalAddr())
 ,_peerAddr(getPeerAddr())
 {
+
 }
 
 TcpConnection::~TcpConnection(){
 
 }
 
+bool TcpConnection::isClosed(){
+    char buf[20]={0};
+    int ret=_sockio.readPeek(buf,sizeof(buf));
+    return ret==0;
+}
+
+
+string TcpConnection::toString(){
+    std::ostringstream oss;
+    oss<<"tcp连接从ip："<<_localAddr.ip()<<"，端口号："<<_localAddr.port()
+        <<"-> ip："<<_peerAddr.ip()<<"，端口号："<<_peerAddr.port()<<endl;
+
+    return oss.str();
+}
+
 void TcpConnection::send(const string &msg){
     int ret=_sockio.writen(msg.data(),msg.size());
-    cout<<"write "<<ret<<" bytes."<<endl;
+    cout<<"发送了 "<<ret<<"个字节的数据！"<<endl;
 }
 
 string TcpConnection::receive(){
@@ -33,64 +49,28 @@ string TcpConnection::receive(){
     return string(buf,ret);
 }
 
-bool TcpConnection::isClosed() const{
-    char buf[20]={0};
-    int ret=_sockio.readPeek(buf,sizeof(buf));
-    return ret==0;
-}
-
-string TcpConnection::toString() const{
-    std::ostringstream oss;
-    oss<<"tcp "<<_localAddr.ip()<<":"<<_localAddr.port()
-        <<"->"<<_peerAddr.ip()<<":"<<_peerAddr.port()<<endl;
-    return oss.str();
-}
-
-
-
-InetAddress TcpConnection::getPeerAddr(){
-    struct sockaddr_in addr;
-    socklen_t len =sizeof(addr);
-    memset(&addr,0,sizeof(addr));
-    int ret=getpeername(_sock.getFd(),(struct sockaddr *)&addr,&len);
-    if(ret<0){
-        perror("getpeername");
-    }
-    return InetAddress(addr);
-}
-
 InetAddress TcpConnection::getLocalAddr(){
-    struct sockaddr_in addr;
+    struct sockaddr_in  addr;
     socklen_t len=sizeof(addr);
-    memset(&addr,0,sizeof(addr));
-    int ret=getsockname(_sock.getFd(),(struct sockaddr *)&addr,&len);
+    memset(&addr,0,len);
+    int ret=getsockname(_sock.getFd(),(struct sockaddr*)&addr,&len);
     if(ret<0){
         perror("getsockname");
     }
     return InetAddress(addr);
 }
 
+InetAddress TcpConnection::getPeerAddr(){
+    struct sockaddr_in addr;
+    socklen_t len=sizeof(addr);
+    memset(&addr,0,len);
+    int ret=getpeername(_sock.getFd(),(struct sockaddr*)&addr,&len);
+    if(ret<0){
+        perror("getpeername");
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return InetAddress(addr);
+}
 
 
 }
