@@ -17,7 +17,8 @@ class EventLoop{
 public:
     EventLoop(Acceptor &);
     ~EventLoop();
-
+    
+    //仅仅只是转交给TcpConnection函数执行
     void setAllCallbacks(TcpConnectionCallback && cb1,
                          TcpConnectionCallback && cb2,
                          TcpConnectionCallback && cb3)
