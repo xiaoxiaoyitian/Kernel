@@ -8,15 +8,16 @@ namespace ReactorV2{
 
 class SocketIO{
 public:
-    SocketIO(int fd);
-    ~SocketIO();
-    int readPeek(char *buf,int len);
-    int readn(char *buf, int len);
-    int writen(const char *buf,int len);
+    SocketIO(int fd)
+    :_fd(fd){}
+    
+    int recvPeek(char *buf ,int len) const;
+    int recvn(char *buf,int len);
     int readLine(char *buf,int len);
-
+    int sendn(const char *buf,int len);
 private:
     int _fd;
+
 };
 
 }

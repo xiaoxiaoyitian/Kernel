@@ -1,33 +1,31 @@
-#ifndef  __Acceptor_H__
-#define  __Acceptor_H__
+#ifndef __Acceptor_H__
+#define __Acceptor_H__
 
-#include "Socket.hh"
 #include "InetAddress.hh"
-#include <func.h>
+#include "Socket.hh"
+#include <sys/stat.h>
 
 
 namespace ReactorV2{
 
 class Acceptor{
 public:
-    Acceptor(const string &ip,unsigned  short port);
-    ~Acceptor();
+    Acceptor(const string &ip,unsigned short port);
     void ready();
     int accept();
-    
-    int fd(){
-        return _sock.getFd();
+
+    int fd()const{
+        return _listensock.fd();
     }
+
 private:
     void setReuseAddr(bool on);
     void setReusePort(bool on);
     void bind();
     void listen();
-
 private:
-    Socket _sock;
-    InetAddress _addr;
+    InetAddress     _addr;
+    Socket          _listensock;
 };
-
 }
 #endif

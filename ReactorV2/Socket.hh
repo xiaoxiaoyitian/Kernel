@@ -3,19 +3,19 @@
 
 #include <func.h>
 
-
 namespace ReactorV2{
 
 class Socket{
 public:
     Socket();
-    explicit Socket(int fd);
+    explicit Socket(int fd):_fd(fd){}
+
     ~Socket();
-    int getFd(){
+    void shutdownWrite();
+
+    int fd() const{
         return _fd;
     }
-
-    void shutdownWrite();
 private:
     int _fd;
 };

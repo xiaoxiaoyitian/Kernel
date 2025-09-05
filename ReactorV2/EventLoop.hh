@@ -2,8 +2,8 @@
 #define  __EventLoop_H__
 
 #include "TcpConnection.hh"
-#include <func.h>
-#include <sys/poll.h>
+#include <algorithm>
+#include <sys/epoll.h>
 #include <vector>
 #include <map>
 
@@ -11,14 +11,12 @@ using std::vector;
 using std::map;
 
 namespace ReactorV2{
-
 class Acceptor;
 class EventLoop{
 public:
     EventLoop(Acceptor &);
     ~EventLoop();
-    
-    //仅仅只是转交给TcpConnection函数执行
+
     void setAllCallbacks(TcpConnectionCallback && cb1,
                          TcpConnectionCallback && cb2,
                          TcpConnectionCallback && cb3)
@@ -26,6 +24,7 @@ public:
         _onConnection=std::move(cb1);
         _onMessage=std::move(cb2);
         _onClose=std::move(cb3);
+
     }
 
     void loop();
@@ -43,18 +42,16 @@ private:
     void handleMessage(int);
 
 private:
-    int             _epfd;
-    Acceptor &      _acceptor;
-    bool            _isLooping;
-    vector<struct epoll_event> _evtArr;
+    int                         _epfd;
+    Acceptor &                  _acceptor;
+    bool                        _isLooping;
+    vector<struct epoll_event>  _evtArr;
+    map<int,TcpConnectionPtr>   _cons;
 
-    map<int,TcpConnectionPtr> _cons;
-
-    TcpConnectionCallback  _onConnection;
-    TcpConnectionCallback  _onMessage;
-    TcpConnectionCallback  _onClose;
+    TcpConnectionCallback       _onConnection;
+    TcpConnectionCallback       _onMessage;
+    TcpConnectionCallback       _onClose;
 };
 
 }
-
 #endif
