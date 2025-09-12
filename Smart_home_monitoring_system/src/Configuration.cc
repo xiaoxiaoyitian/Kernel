@@ -2,7 +2,7 @@
 
 
 namespace Titan{
-Configuration* Configuration::_ps=nullptr;
+
     void Configuration::put(string key,string value){
         auto it=_map.find(key);
         //判断key值是否存在于_map中

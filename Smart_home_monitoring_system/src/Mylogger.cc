@@ -10,7 +10,7 @@ Mylogger::Mylogger(){
     //OstreamAppender *ap1=new OstreamAppender("console",&cout);
 
     //创建一个输出到文件的日志输出源
-    FileAppender *f1=new FileAppender("file","logger.log");
+    FileAppender *f1=new FileAppender("file","server.log");
 
     //创建一个格式化器
     PatternLayout *p1=new PatternLayout();
